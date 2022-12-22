@@ -1,6 +1,8 @@
 <?php
 
-enum Config:string
+namespace Dorsone\Booking;
+
+enum Config: string
 {
     case DB_HOSTNAME = 'localhost';
     case DB_USERNAME = 'root';

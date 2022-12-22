@@ -1,0 +1,20 @@
+{
+    "name": "dorsone/booking",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Dorsone\\Booking\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Dorsone",
+            "email": "jasur.coder@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "php": "8.1"
+    }
+}
