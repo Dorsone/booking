@@ -73,12 +73,14 @@ class DB
     public function insert(array $data): bool
     {
         try {
-            $columns = implode(', ', array_keys($data));
+            $columns = "`".implode('`, `', array_keys($data))."`";
             $values = implode(', ', array_map(fn($value) => "\"$value\"", $data));
             $sql = "INSERT INTO $this->tableName ($columns) VALUES ($values)";
             $this->database->query($sql);
             return true;
         } catch (Exception $exception) {
+            print_r($exception);
+            die();
             return false;
         }
     }
