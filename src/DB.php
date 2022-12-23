@@ -25,7 +25,7 @@ class DB
 
     private function __construct($host, $username, $password, $name)
     {
-        $this->database = new mysqli($host,$username, $password, $name);
+        $this->database = new mysqli($host, $username, $password, $name);
     }
 
     protected mysqli $database;
@@ -33,6 +33,7 @@ class DB
     protected string $tableName;
 
     protected string $whereCondition = '';
+    protected string $innerJoin = '';
 
     public function table(string $tableName): static
     {
@@ -42,9 +43,13 @@ class DB
 
     public function get($columns = ['*']): bool|array|null
     {
-
-        $sql = 'SELECT ' . implode(', ', $columns) . ' FROM ' . $this->tableName . $this->formatWhereCondition();
-        return $this->database->query($sql)->fetch_all();
+        try {
+            $sql = 'SELECT ' . implode(', ', $columns) . ' FROM ' . $this->tableName . $this->innerJoin . $this->formatWhereCondition() . ';';
+            $this->innerJoin = '';
+            return $this->database->query($sql)->fetch_all(MYSQLI_ASSOC);
+        } catch (Exception $exception) {
+            return [];
+        }
     }
 
     protected function formatWhereCondition(): string
@@ -56,12 +61,12 @@ class DB
 
     public function where(string $column, string $operator, string $value): static
     {
-        $sql = $column . $operator . '"' . $value . '"';
+        $sql = "`$column` $operator \"$value\"";
         if ($this->whereCondition === '') {
             $this->whereCondition .= $sql;
             return $this;
         }
-        $this->whereCondition .= ' and ' . $sql;
+        $this->whereCondition .= " and $sql";
         return $this;
     }
 
@@ -69,13 +74,19 @@ class DB
     {
         try {
             $columns = implode(', ', array_keys($data));
-            $values = implode(', ', array_map(fn($value)=>"\"$value\"", $data));
-            $sql = 'INSERT INTO '.$this->tableName .'('.$columns.') VALUES ('.$values.')';
+            $values = implode(', ', array_map(fn($value) => "\"$value\"", $data));
+            $sql = "INSERT INTO $this->tableName ($columns) VALUES ($values)";
             $this->database->query($sql);
             return true;
         } catch (Exception $exception) {
             return false;
         }
+    }
+
+    public function innerJoin(string $relatedTableName, string $localKeyName, string $foreignKeyName): static
+    {
+        $this->innerJoin = ' INNER JOIN ' . $relatedTableName . ' ON ' . $this->tableName . '.' . $localKeyName . '=' . $relatedTableName . '.' . $foreignKeyName;
+        return $this;
     }
 
     private function __clone()
