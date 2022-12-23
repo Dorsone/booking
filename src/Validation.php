@@ -5,6 +5,7 @@ namespace Dorsone\Booking;
 use Dorsone\Booking\Exceptions\InvalidDateException;
 use Dorsone\Booking\Exceptions\InvalidEmailException;
 use Dorsone\Booking\Exceptions\InvalidIntegerException;
+use Dorsone\Booking\Exceptions\NoRoomsException;
 
 class Validation
 {
@@ -55,6 +56,37 @@ class Validation
         if (!filter_var($this->item, FILTER_VALIDATE_EMAIL)) {
             throw new InvalidEmailException('Invalid email address!');
         }
+        return $this;
+    }
+
+    /**
+     * @throws InvalidDateException
+     */
+    public function dateRange($to): static
+    {
+        if (strtotime($this->item) > strtotime("+1 day")) {
+            throw new InvalidDateException('Invalid Date Format');
+        }
+
+        if (strtotime($this->item) > strtotime($to)) {
+            throw new InvalidDateException('Invalid Date Format');
+        }
+        return $this;
+    }
+
+    /**
+     * @throws NoRoomsException
+     */
+    public function exists($primaryKeyName, $tableName): static
+    {
+        $db = DB::connect();
+
+        $room = $db->table($tableName)->where($primaryKeyName, '=', $this->item)->get();
+
+        if (empty($room)) {
+            throw new NoRoomsException("Record with this $primaryKeyName [$this->item] not found");
+        }
+
         return $this;
     }
 

@@ -56,7 +56,7 @@ class Program
     protected function validateBookInformation(): void
     {
         try {
-            $this->roomId = Validation::start($this->roomId)->integer()->validate();
+            $this->roomId = Validation::start($this->roomId)->exists('id', 'cabinets')->integer()->validate();
             $this->userEmail = Validation::start($this->userEmail)->email()->validate();
         } catch (\Exception $exception) {
             echo $exception->getMessage();
@@ -67,7 +67,7 @@ class Program
     protected function getDates(): void
     {
         $this->from = Console::make("Write booking date from (ex: 2022-12-15): ")->input();
-        $this->to = Console::make("Write booking date from (ex: 2022-12-21): ")->input();
+        $this->to = Console::make("Write booking date to (ex: 2022-12-21): ")->input();
         $this->validateDateRange();
     }
 
@@ -76,6 +76,7 @@ class Program
         try {
             $this->from = Validation::start($this->from)->date()->validate();
             $this->to = Validation::start($this->to)->date()->validate();
+            Validation::start($this->from)->dateRange($this->to)->validate();
         } catch (\Exception $exception) {
             echo $exception->getMessage();
             die();
