@@ -2,6 +2,7 @@
 
 namespace Dorsone\Booking;
 
+use Dorsone\Booking\Exceptions\InvalidEmailException;
 use Dorsone\Booking\Exceptions\NoRoomsException;
 
 class Program
@@ -18,6 +19,7 @@ class Program
 
     /**
      * @throws NoRoomsException
+     * @throws InvalidEmailException
      */
     public function index(): void
     {
@@ -36,7 +38,12 @@ class Program
         echo $result;
 
         $this->getBookingInformation();
-        echo $booking->bookRoom($this->roomId, $this->userEmail);
+
+        if (!$booking->bookRoom($this->roomId, $this->userEmail)) {
+            echo 'Something went wrong';
+        }
+        Notification::send($this->userEmail);
+        echo 'Room booked successfully!';
     }
 
     protected function getBookingInformation(): void

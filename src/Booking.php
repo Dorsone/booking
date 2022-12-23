@@ -52,13 +52,12 @@ class Booking
 
     public function bookRoom($roomId, $userEmail): string
     {
-        $isSuccess = $this->db->table('booking')->insert([
+        return $this->db->table('booking')->insert([
             'cabinet_id' => $roomId,
             'user_email' => $userEmail,
             'from' => $this->from->format('Y-m-d'),
             'to' => $this->to->format('Y-m-d'),
         ]);
-        return $isSuccess ? 'Room booked successfully!' : 'Something went wrong';
     }
 
 }
